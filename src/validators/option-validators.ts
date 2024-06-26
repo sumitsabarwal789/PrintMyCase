@@ -22,6 +22,10 @@ export const MODELS = {
       value: "iphonex",
     },
     {
+      label: "iPhone XR",
+      value: "iphonexr",
+    },
+    {
       label: "iPhone XS MAX",
       value: "iphonexsmax",
     },
