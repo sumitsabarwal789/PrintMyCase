@@ -1,31 +1,33 @@
 "use client";
 
-import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import React, { useRef, useState } from "react";
-import NextImage from "next/image";
-import { cn, formatPrice } from "@/lib/utils";
-import { Rnd } from "react-rnd";
 import HandleComponent from "@/components/HandleComponent";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn, formatPrice } from "@/lib/utils";
+import NextImage from "next/image";
+import { Rnd } from "react-rnd";
+import { RadioGroup } from "@headlessui/react";
+import { useRef, useState } from "react";
 import {
   COLORS,
   FINISHES,
   MATERIALS,
   MODELS,
 } from "@/validators/option-validators";
-import { RadioGroup } from "@headlessui/react";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Label } from "@radix-ui/react-label";
+import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
 import { BASE_PRICE } from "@/config/products";
 import { useUploadThing } from "@/lib/uploadthing";
 import { useToast } from "@/components/ui/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { saveConfig as _saveConfig, SaveConfigArgs } from "./action";
 import { useRouter } from "next/navigation";
 
 interface DesignConfiguratorProps {
@@ -34,13 +36,31 @@ interface DesignConfiguratorProps {
   imageDimensions: { width: number; height: number };
 }
 
-const DesignConfigurator: React.FC<DesignConfiguratorProps> = ({
+const DesignConfigurator = ({
   configId,
   imageUrl,
   imageDimensions,
-}) => {
+}: DesignConfiguratorProps) => {
   const { toast } = useToast();
   const router = useRouter();
+
+  const { mutate: saveConfig, isPending } = useMutation({
+    mutationKey: ["save-config"],
+    mutationFn: async (args: SaveConfigArgs) => {
+      await Promise.all([saveConfiguration(), _saveConfig(args)]);
+    },
+    onError: () => {
+      toast({
+        title: "Something went wrong",
+        description: "There was an error on our end. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSuccess: () => {
+      router.push(`/configure/preview?id=${configId}`);
+    },
+  });
+
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number];
     model: (typeof MODELS.options)[number];
@@ -158,6 +178,7 @@ const DesignConfigurator: React.FC<DesignConfiguratorProps> = ({
             )}
           />
         </div>
+
         <Rnd
           default={{
             x: 150,
@@ -196,17 +217,21 @@ const DesignConfigurator: React.FC<DesignConfiguratorProps> = ({
           </div>
         </Rnd>
       </div>
+
       <div className="h-[37.5rem] w-full col-span-full lg:col-span-1 flex flex-col bg-white">
         <ScrollArea className="relative flex-1 overflow-auto">
           <div
             aria-hidden="true"
             className="absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none"
           />
+
           <div className="px-8 pb-12 pt-8">
             <h2 className="tracking-tight font-bold text-3xl">
               Customize your case
             </h2>
+
             <div className="w-full h-px bg-zinc-200 my-6" />
+
             <div className="relative mt-4 h-full flex flex-col justify-between">
               <div className="flex flex-col gap-6">
                 <RadioGroup
@@ -251,7 +276,7 @@ const DesignConfigurator: React.FC<DesignConfiguratorProps> = ({
                       <Button
                         variant="outline"
                         role="combobox"
-                        className="w-full justify-between "
+                        className="w-full justify-between"
                       >
                         {options.model.label}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -262,7 +287,7 @@ const DesignConfigurator: React.FC<DesignConfiguratorProps> = ({
                         <DropdownMenuItem
                           key={model.label}
                           className={cn(
-                            "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100 bg-white",
+                            "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
                             {
                               "bg-zinc-100":
                                 model.label === options.model.label,
@@ -368,7 +393,18 @@ const DesignConfigurator: React.FC<DesignConfiguratorProps> = ({
                 )}
               </p>
               <Button
-                onClick={() => saveConfiguration}
+                disabled={isPending}
+                isLoading={true}
+                loadingText="loading"
+                onClick={() =>
+                  saveConfig({
+                    configId,
+                    color: options.color.value,
+                    finish: options.finish.value,
+                    material: options.material.value,
+                    model: options.model.value,
+                  })
+                }
                 size="sm"
                 className="w-full"
               >

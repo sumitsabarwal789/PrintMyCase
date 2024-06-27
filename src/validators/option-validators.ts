@@ -59,7 +59,7 @@ export const MODELS = {
     },
     {
       label: "iPhone 14 Pro",
-      value: "iphone14 pro",
+      value: "iphone14pro",
     },
     {
       label: "iPhone 15",
