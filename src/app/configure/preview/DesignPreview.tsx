@@ -10,11 +10,11 @@ import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import Confetti from "react-dom-confetti";
-
+import { createCheckoutSession } from "./actions";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
-import { createCheckoutSession } from "./actions";
+import LoginModal from "@/components/LoginModel";
 
 const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
   const router = useRouter();
@@ -24,7 +24,7 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
-  useEffect(() => setShowConfetti(true));
+  useEffect(() => setShowConfetti(true), []);
 
   const { color, model, finish, material } = configuration;
 
@@ -80,6 +80,8 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
         />
       </div>
 
+      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
+
       <div className="mt-20 flex flex-col items-center md:grid text-sm sm:grid-cols-12 sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-12">
         <div className="md:col-span-4 lg:col-span-3 md:row-span-2 md:row-end-2">
           <Phone
@@ -106,7 +108,7 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
                 <li>Wireless charging compatible</li>
                 <li>TPU shock absorption</li>
                 <li>Packaging made from recycled materials</li>
-                <li>3 year print warranty</li>
+                <li>5 year print warranty</li>
               </ol>
             </div>
             <div>
