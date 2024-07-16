@@ -19,7 +19,7 @@ export function constructMetadata({
   title = "PrintMyCase - custom high-quality phone cases",
   description = "Create custom high-quality phone cases in seconds",
   image = "/thumbnail.png",
-  icons = "/favicon.ico",
+  icons = "/logo-2.png",
 }: {
   title?: string;
   description?: string;
@@ -41,6 +41,6 @@ export function constructMetadata({
       images: [image],
     },
     icons,
-    metadataBase: new URL("https://casecobra.vercel.app/"),
+    metadataBase: new URL("https://print-my-case.vercel.app/"),
   };
 }
